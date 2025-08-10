@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>home</title>
+  <link rel="icon" type="image" href="images/tab-picture.jpg">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- jQuery (required for the drag logic in this version) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- GSAP CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+
+<style>
+  *{
+      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      margin: 0px;
+      padding: 0;
+    }
+    .container{
+      position: relative;
+      height: 100vh; /*full viewport height*/
+      overflow: hidden; /*contain the video*/
+    }
+
+    .socials{
+       position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: row;
+        gap: 10px; /* Add spacing between icons */
+        /* Remove justify-content: space-between if using gap */
+        z-index: 10;
+    }
+    .socials a {
+      display: inline-block; /* Important for transform to work */
+      transition: transform 0.3s ease; /*instead of adding hover to the image, i added it to archer <a>*/
+        /* border: 1px solid red; Temporary - to see the clickable area */
+    }
+    .socials a:hover{
+      transform: scale(1.5); /* This scales by 1.5x instead of changing width */
+       /* background-color: yellow; Temporary - to see if hover is detected */
+    }
+    .socials img {
+      width: 20px;
+      display: block; /* Remove any extra spacing */
+    }
+
+    .tree-image{
+      position: absolute;
+      width: 200px;
+      bottom: 20px; /* Remove top: 70px, using both is contradictory*/
+      transform: scale(1);      
+      z-index: 1;      
+    }
+    .tree-image:hover{
+      animation: treeShake 0.6s ease-in-out;
+      transform: scale(1.05);
+    }
+   @keyframes treeShake {
+      0%, 100% { transform: scale(1.05) rotate(0deg); }
+      10% { transform: scale(1.05) rotate(-2deg); }
+      20% { transform: scale(1.05) rotate(2deg); }
+      30% { transform: scale(1.05) rotate(-2deg); }
+      40% { transform: scale(1.05) rotate(2deg); }
+      50% { transform: scale(1.05) rotate(-1deg); }
+      60% { transform: scale(1.05) rotate(1deg); }
+      70% { transform: scale(1.05) rotate(-1deg); }
+      80% { transform: scale(1.05) rotate(1deg); }
+      90% { transform: scale(1.05) rotate(0deg); }
+    }
+    .bg-video {
+      margin-bottom: 30px;
+      position: absolute; /* Changed from fixed to absolute, the fixed makes the video fixed for the whole screen*/
+      top: 0; left: 0;
+      width: 100vw;
+      height: 95vh;
+      object-fit: cover;
+      z-index: -1; /* Behind everything in first container */
+
+      /*the below lines of code is for smoother playback*/
+       transform: translateZ(0); /* Hardware acceleration */
+         backface-visibility: hidden;
+          perspective: 1000px;
+    }
+
+    
+    .video-hide{
+    position: absolute; /*fixed to absolute*/
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    /* background: #fce7b0; sand color */
+    background: #FCD978;
+    z-index: 2;
+    }
+    .avatar-section{
+      display: flex; /*used for the star*/
+      position: relative;
+      z-index: 1; /*for the prority, above video*/
+      gap: 20px;
+        width: fit-content;  /* ✅ Optional: limits the section as well */
+
+        
+    }
+    .avatar-section p{
+      font-size: 65px;
+      color: white;
+      margin: 0;
+      position:absolute;
+       top: 100px;
+       left: 160px;
+       text-transform: uppercase;
+       transition: transfrom 0.3 ease;
+    }
+       .avatar-section:hover p{
+        -webkit-text-fill-color: transparent;
+        -webkit-text-stroke-width: 3px;
+    }
+    .avatar-container{
+      position: relative;
+      display: inline-block;
+        width: fit-content;   /* ✅ Only as wide as content */
+  height: fit-content;  /* ✅ Only as tall as content */
+    /* overflow: hidden;  ✅ Prevents invisible hover area */
+      overflow: visible; /* Let stars show outside */
+      pointer-events: auto; }
+
+    .avatar-container:hover .avatar-name {
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke-width: 3px;
+}
+    .avatar{
+      background-image: url(images/avatar-1.png);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat; /* Don't repeat the image */
+      width: 200px;
+      height:200px; 
+      margin-top: 120px;
+      cursor:grab;
+          transition: transform 0.1s ease;
+           z-index: 1; /* Above video */
+
+             border-radius: 50%; /* Makes it circular */
+             
+             overflow: hidden;
+
+             position: relative;
+                left: 190px;
+             
+    }
+    .avatar-container:hover .avatar{
+      background-image: url(images/avatar-2.png);
+      cursor: grabbing;
+       transform: scale(1.1);  /*makes it bigger */
+
+      /* You can edit avatar-2 here while hovering */
+     /* filter: brightness(1.2);   makes it brighter */
+  /* opacity: 0.9;  makes it slightly transparent */
+    }
+.avatar-container:hover .avatar-name {
+  animation: typewriter 2s steps(30) forwards;
+}
+
+.avatar-container:hover .stars {
+  opacity: 1;
+}
+
+  .star-container {
+    position: absolute;
+    top: 55%;
+    left: 100%;
+    transform: translate(-50%, -50%);
+    width: 180px;/*this makes the stars near or far away from the avatar*/
+    height: 180px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.star {
+    position: absolute;
+    font-size: 18px;
+    color: white;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+      z-index: -1;
+        pointer-events: none;  /* ✅ Stars can't receive or trigger hover */
+}
+
+.star::before {
+    content: '★';
+    display: block;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+/* Star positions around the avatar */
+.star:nth-child(1) { top: 8%; left: 48%; transform: translateX(-50%) rotate(15deg); }
+.star:nth-child(2) { top: 28%; right: 12%; transform: rotate(-20deg); }
+.star:nth-child(3) { top: 45%; right: 2%; transform: translateY(-50%) rotate(25deg); }
+.star:nth-child(4) { bottom: 22%; right: 18%; transform: rotate(-15deg); }
+.star:nth-child(5) { bottom: 12%; left: 52%; transform: translateX(-50%) rotate(30deg); }
+.star:nth-child(6) { bottom: 28%; left: 10%; transform: rotate(-25deg); }
+.star:nth-child(7) { top: 52%; left: 3%; transform: translateY(-50%) rotate(20deg); }
+.star:nth-child(8) { top: 18%; left: 18%; transform: rotate(-10deg); }
+
+/* Glow effect on avatar hover */
+.avatar:hover ~ .star-container .star {
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.6);
+    animation: gentleGlow 2s ease-in-out infinite;
+}
+
+@keyframes gentleGlow {
+    0%, 100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}   .scroll-indicator {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgb(5, 5, 5);
+      font-size: 1rem;
+      animation: bounce 2s infinite;
+      z-index: 3; /* Added z-index to ensure it's visible */
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      40% {
+        transform: translateX(-50%) translateY(-10px);
+      }
+      60% {
+        transform: translateX(-50%) translateY(-5px);
+      }
+    }
+
+    .second-container{
+      background: url('images/background-artist.png') center center / cover no-repeat;
+      background-color: #1a1a2e; /* Fallback color similar to your image */
+      color: white;
+      height: 620px;/* Increased from 500px to fit overlay */
+      margin-bottom: 100px;
+      z-index: 10;/*above everything*/
+    }
+
+    
+    /* Optional: Add some content styling for second container */
+    .second-container h2 {
+      color: white;
+      text-align: center;
+      padding-top: 50px;
+      font-size: 48px;
+    }
+    .middle-section{
+      display: grid;
+      grid-template-columns: 1fr 300px 1fr;/*Left artwork | Center picture | Right artwork*/
+      gap: 20px;
+      padding: 20px;
+      height: 400px; /* Fixed height for the section, same height no change */
+    }
+    .middle-picture{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .middle-picture img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* This will make it fill the space nicely */
+      border-radius: 10px; /* Optional: rounded corners */
+    }
+
+    .middle-left, .middle-right {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .middle-left-down,
+    .middle-right-down {
+      display: flex;
+      gap: 15px;
+    }
+
+
+    /*for the art work containers*/
+    .artwork-item {
+      /* background-color: #333; */
+      border-radius: 8px;
+      /* padding: 15px; */
+      /* min-height: 120px; */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+    .artwork-item:hover{
+        transform: scale(1.05);
+    }
+    .artwork-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .artwork-item {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.artwork-item img {
+  width: 150%;
+  transform: translateX(-80%);
+  transition: transform 1s ease-out;
+  will-change: transform;
+  animation: peek-slide-in linear forwards;
+  animation-timeline: view();
+  animation-range: entry 10% cover 40%;
+}
+
+@keyframes peek-slide-in {
+  to {
+    transform: translateX(0);
+  }
+}
+
+    /*for the text*/
+    .second-text{
+      text-align: center;
+      padding: 40px 20px;
+        background: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay */
+
+    }
+    .second-text p {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    .second-text .subtitle{
+      font-size: 18px;
+      opacity: 0.8;
+      font-weight: normal;
+    }
+
+    /*below is the their container*/
+
+    
+    .third-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%);
+      animation: shimmer 8s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    /* Added Spotify embed section */
+    .spotify-embed-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .spotify-embed-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .spotify-embed-section iframe {
+      max-width: 280px;
+      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 2;
+      transition: transform 0.3s ease;
+    }
+    
+    .spotify-embed-section iframe:hover {
+      transform: scale(1.05);
+    }
+    .ring a:hover {
+      transform: scale(1.05) rotateY(var(--rotate));
+    }
+
+    .ring a {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: rgb(0, 0, 0);
+      font-family: 'poppins', sans-serif;
+      font-size: 14px;
+      transition: transform 0.3s ease;
+      backface-visibility: hidden;
+    }
+
+    .ring a img {
+      width: 200px;
+      height: 200px;
+      border-radius: 15px;
+      object-fit: cover;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .ring a span {
+      margin-top: 10px;
+      text-align: center;
+      max-width: 180px;
+      word-wrap: break-word;
+    }
+
+    .credit-container{
+      background-color: #667eea;
+    }
+    .credit-text{
+      display: flex;
+      flex-direction: column;
+      padding:8px;
+    }
+    .credit-text h4{
+      margin-left: 50px;
+    }
+    .credit-socials{
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      padding: 10px;
+      font-size: 10px;
+  
+    }
+    .credit-socials div{
+      border: 1px solid black;
+      border-radius: 10px;
+      padding:5px;
+         background-color: #37378b;
+    }
+    .credit-socials a {
+       text-decoration: none;
+           color: white;
+    }
+     .credit-socials img {
+      width: 7px;}
+  .block{
+     animation:appear  linear;
+     animation-timeline: view();
+     animation-range:entry 0 cover 40%;
+  }
+  @keyframes appear {
+    from{
+      opacity: 0;
+      /* transform: translateX(-100px  ); */
+      clip-path: inset(100% 100% 0 0 );
+    }
+    top{
+      opacity: 1;
+      /* transform: translateX(0px); */
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  
+</style>
+</head>
+
+<body>
+
+ <div class="container">
+
+  <div class="socials">
+    <a href="https://in.pinterest.com/Shoryayaya/i-draw/" target="_blank">
+      <img src="images/socials-pinterest.png" alt="pinterest">
+    </a>
+    <a href="https://www.instagram.com/duckgotnochill/" target="_blank">
+      <img src="images/socials-insta.png" alt="instagram">
+    </a>
+    <a href="https://discordapp.com/users/1372857602106720288" target="_blank">
+       <img src="images/socials-discord.png" alt="discord">
+    </a>
+  </div>
+  
+    <video autoplay loop muted playsinline class="bg-video">
+      <source src="images/background-video-webF.webm" type="video/webm">
+      <!-- Optional: Fallback -->
+      <source src="images/background-video.mp4" type="video/mp4">
+    </video>
+    <div class="video-hide"></div>
+
+    <img src="images/palm-trees.png" alt="tree" class="tree-image">
+    
+    <!-- Avatar section moved inside first container -->
+    <div class="avatar-section">
+      <div class="avatar-container">
+              <p>shorya jain</p>
+            <div class="avatar"></div>
+      <div class="star-container">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+
+  <div class="scroll-indicator">
+    scroll down
+  </div>
+
+<section>
+  <div class="custom-shape-divider-top-1754829917">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+        <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+        <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+    </svg>
+</div>
+   <h2>Hey there! 👋</h2>
+      <p>I'm Shorya, a passionate digital artist who believes that art is the language of the soul. My journey started with simple doodles and has evolved into a colorful exploration of creativity, emotions, and storytelling through digital mediums.</p>
+
+      <p>When I'm not creating art, you'll find me curating playlists that fuel my imagination or discovering new ways to express the stories that live in my mind. Every piece I create is a window into my world – raw, authentic, and unapologetically me.</p>
+      <p>Art isn't just what I do; it's who I am. Let's create something beautiful together! ✨</p>
+    </div>
+    <div class="custom-shape-divider-bottom-1754829778">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+        <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+        <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+    </svg>
+</div>
+</section>
+    <!--below container for second div-->
+
+<div class="second-container">
+  <div class="second-text">
+    <p>i'm shorya jain, i paint feelings.</p>
+    <p class="subtitle">Scroll to see my world</p>
+  </div>
+
+  <!--below is the middle section, which contains artwork,artist-->
+  <div class="second-container-wrapper">
+     <div class="middle-section">
+
+        <!--below is the middle left art section-->
+        <!--below is the middle left art section-->
+          <div class="middle-left">
+            <div class="artwork-item">
+              <img src="artwork/artwork-1.jpg" alt="artwork">
+            </div>
+            <div class="artwork-item">
+              <img src="artwork/artwork-2.jpg" alt="artwork">
+            </div>
+            
+      <!-- Added new row inside -->
+          <div class="middle-left-down">
+          <div class="artwork-item">
+            <img src="artwork/artwork-1.jpg" alt="artwork">
+          </div>
+          <div class="artwork-item">
+            <img src="artwork/artwork-2.jpg" alt="artwork">
+          </div>
+        </div>
+        </div>
+
+    <!-- below is the center -->
+          <div class="middle-picture">
+            <img src="images/image-backlook.jpg" alt="artist portrait">
+          </div>
+
+    <!--below is the middle right art section-->
+          <div class="middle-right">
+            <div class="artwork-item">
+              <img src="artwork/artwork-3.jpg" alt="artwork">
+            </div>
+            <div class="artwork-item">
+              <img src="artwork/artwork-4.jpg" alt="artwork">
+            </div>
+
+      <!-- Added new row inside -->
+          <div class="middle-right-down">
+            <div class="artwork-item">
+              <img src="artwork/artwork-3.jpg" alt="artwork">
+            </div>
+            <div class="artwork-item">
+              <img src="artwork/artwork-4.jpg" alt="artwork">
+            </div>
+            </div>
+    </div>
+              <!--NEW: Pinterest overlay section below the grid-->
+    <div class="pinterest-overlay">
+      <div class="more-text">More at my pinterest check it out</div>
+      <a href="https://in.pinterest.com/Shoryayaya/" target="_blank">
+        <div class="pinterest-text">
+          <span class="span-1">shoryaya</span>
+          <span class="span-2">.pinterest</span>
+        </div>
+  
+      </a>
+      </div>
+
+  </div>
+     
+</div> <!--closing tag for second container-->
+  <!--testing-->
+
+  <!-- Added Spotify embed section -->
+  <div class="spotify-embed-section">
+    <div class="custom-shape-divider-top-1754830350">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+        <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+        <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+    </svg>
+</div>
+    <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/3i11tRylj2Z0J4VO4XXnp7?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  </div>
+
+  <div class="third-container" >
+    <div class="container-ring">  
+      <p class="music-title">music that moves me</p>
+         <p class="music-subtitle">The soundtracks behind my late-night sketching sessions.</p>
+      <div class="ring">
+        <a href="https://open.spotify.com/playlist/5IqwnD3Mx9IA1QOgACnuiC?si=dDNI5lGzQsyijznHde23iQ" target="_blank">
+          <img src="spotify/playlist-1.jpg" alt="playlist-1">
+          <span>GHJD</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/3oSRlzYUl1uBtzNrZbjoJe?si=YCWO9a3jSp-amRfVee8uGw" target="_blank">
+           <img src="spotify/playlist-2.jpg" alt="playlist-2">
+          <span>loveless</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/24i6A5QRfpajnyuKrDqQVu?si=ZoVjB_aiSraWk3d9Z6Fh1w" target="_blank">
+           <img src="spotify/playlist-3.jpg" alt="playlist-3">
+          <span>same vibe?</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/4cxt66dftTmyVe2TrAb0V3?si=WVgx_P5XSI-Z0_k246RExw" target="_blank">
+           <img src="spotify/playlist-4.jpg" alt="playlist-4">
+          <span>Hindi</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/4pVvvfettgMN0Y5KWFqr3s?si=EPEpB2LQTkKxMVcoY9PlOg" target="_blank">
+           <img src="spotify/playlist-5.jpg" alt="playlist-5">
+          <span>i fw this</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/5YTO7td4wrvJHEjQS2zMrq?si=dFnDnDq7T1KyKvNl8ti2pw" target="_blank">
+           <img src="spotify/playlist-6.jpg" alt="playlist-6">
+          <span>hmmm</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/0qvO292ZkPOhy79gS7rjXW?si=UUroUIelTd2msiOEdHQ2KA" target="_blank">
+           <img src="spotify/playlist-7.jpg" alt="playlist-7">
+          <span>defaults</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/5CdlVPC8tBtR45X51ACYPK?si=EMLF09SWQjalSTaW_3xOVQ" target="_blank">
+           <img src="spotify/playlist-8.jpg" alt="playlist-8">
+          <span>dance party</span>
+        </a>
+
+         <a href="https://open.spotify.com/playlist/3CSzEzsnJqs22MpDEIp8LI?si=VHfAIieoQ-KhioF9s_ntJw" target="_blank">
+           <img src="spotify/playlist-9.jpg" alt="playlist-9">
+          <span>that was it.Was that it?</span>
+        </a>
+      </div> 
+    </div>
+         <p style="font-size: 18px; color:black;text-align: center;">bet i got a better taste than yall</p>
+    
+      <!--this below is the svg-->
+      <div class="custom-shape-divider-bottom-1754829612">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+        <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+        <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+    </svg>
+</div>
+  </div>
+
+<div class="credit-container">
+
+  <div class="credit-text">
+     <p>Dont steal my shi*</p>
+     <h4>website by srujanPHQ</h4>
+  </div>
+  <div class="credit-socials">
+    <div>
+      <a href="https://www.instagram.com/srujan_phq/" target="_blank">instagram</a>
+      <img src="images/up-arrow.png" alt="arrow">
+    </div>
+    <div>
+       <a href="" target="_blank">discord</a>
+       <img src="images/up-arrow.png" alt="arrow">
+    </div>
+    <div>
+          <a href="" target="_blank">github</a>
+          <img src="images/up-arrow.png" alt="arrow"> 
+    </div>
+  </div>
+</div>
+
+<script>
+
+  //animated tabs
+   const originalTitle = document.title; // Store the original title
+    const animatedText = "shawty shorya  "; // Add some spaces for smoother scrolling
+    let position = 0;
+
+    function animateTitle() {
+      // Take a substring from the animated text, starting at the current position
+      // Append the beginning of the animated text to the end, creating a continuous loop
+      document.title = animatedText.substring(position, animatedText.length) + animatedText.substring(0, position);
+      position++;
+      if (position > animatedText.length) {
+        position = 0; // Reset the position to the beginning when it reaches the end
+      }
+      setTimeout(animateTitle, 300); // Adjust the delay (in milliseconds) to control the animation speed
+    }
+
+    // Call the function to start the animation when the page loads
+    window.onload = animateTitle; // Or you could use animateTitle() directly in the script tag
+
+  // Improved carousel with infinite loop and smoother dragging
+  let xPos = 0;
+  let currentOffset = 0;
+  let isDragging = false;
+  let startX = 0;
+  let animationId;
+
+  const items = document.querySelectorAll(".ring a");
+  const total = items.length;
+  const gap = 220; // Width + gap
+  const curveIntensity = 20; // degree of side rotation
+
+  // Initialize positions
+  function initializePositions() {
+    items.forEach((item, i) => {
+      const x = (i - total / 2) * gap;
+      const z = -Math.abs(i - total / 2) * 60;
+      const rotateY = (i - total / 2) * curveIntensity;
+      
+      gsap.set(item, {
+        x: x,
+        z: z,
+        rotateY: rotateY
+      });
+    });
+  }
+
+  // Update positions with infinite loop
+  function updatePositions(offset) {
+    items.forEach((item, i) => {
+      const baseX = (i - total / 2) * gap + offset;
+      
+      // Create infinite loop effect
+      let x = baseX;
+      const containerWidth = gap * total;
+      
+      // Normalize position for smooth looping
+      while (x > containerWidth / 2) x -= containerWidth;
+      while (x < -containerWidth / 2) x += containerWidth;
+      
+      const indexFromCenter = x / gap;
+      const z = -Math.abs(indexFromCenter) * 60;
+      const rotateY = indexFromCenter * curveIntensity;
+      
+      gsap.to(item, {
+        x: x,
+        z: z,
+        rotateY: rotateY,
+        duration: isDragging ? 0.1 : 0.3,
+        ease: isDragging ? "none" : "power2.out"
+      });
+    });
+  }
+
+  // Touch and mouse events
+  function dragStart(e) {
+    isDragging = true;
+    startX = e.touches ? e.touches[0].clientX : e.clientX;
+    xPos = startX;
+    gsap.set(".ring", { cursor: "grabbing" });
+    
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+    }
+    
+    $(window).on("mousemove touchmove", drag);
+  }
+
+  function drag(e) {
+    if (!isDragging) return;
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const delta = clientX - xPos;
+    currentOffset += delta;
+    
+    updatePositions(currentOffset);
+    xPos = clientX;
+  }
+
+  function dragEnd() {
+    isDragging = false;
+    $(window).off("mousemove touchmove", drag);
+    gsap.set(".ring", { cursor: "grab" });
+    
+    // Smooth momentum effect
+    let velocity = (xPos - startX) * 0.1;
+    
+    function momentum() {
+      if (Math.abs(velocity) > 0.5) {
+        currentOffset += velocity;
+        velocity *= 0.95; // Friction
+        updatePositions(currentOffset);
+        animationId = requestAnimationFrame(momentum);
+      }
+    }
+    
+    momentum();
+  }
+
+  // Initialize
+  initializePositions();
+
+  // Event listeners
+  $(window).on("mousedown touchstart", dragStart);
+  $(window).on("mouseup touchend", dragEnd);
+
+  // Prevent default drag behavior on images
+  document.querySelectorAll('.ring img').forEach(img => {
+    img.addEventListener('dragstart', e => e.preventDefault());
+  });
+
+  document.addEventListener("scroll", () => {
+  document.querySelectorAll(".artwork-item").forEach(item => {
+    if (item.getBoundingClientRect().top < window.innerHeight - 100 &&
+        item.getBoundingClientRect().bottom > 0) {
+      item.classList.add("show");
+    } else {
+      item.classList.remove("show");
+    }
+  });
+});
+
+</script>
+</body>
+</html>
